@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "HackatonBA_backend": {
+      "main": "src/HackatonBA_backend/main.mo",
+      "type": "motoko"
+    },
+    "HackatonBA_frontend": {
+      "dependencies": [
+        "HackatonBA_backend"
+      ],
+      "source": [
+        "src/HackatonBA_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "HackatonBA_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
