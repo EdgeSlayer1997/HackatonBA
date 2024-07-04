@@ -7,6 +7,9 @@ import Iter "mo:base/Iter";
 
 actor ClientRegistry {
 
+  let emailMap = HashMap.HashMap<Text, ClientInfo>(0, Text.equal, Text.hash);
+  let userMap = HashMap.HashMap<Text, ClientInfo>(0, Text.equal, Text.hash);
+
   type Id = Nat32;
 
   type ClientInfo = {
@@ -34,6 +37,8 @@ actor ClientRegistry {
   public shared func crearRegistro(nombre : Text, apellido : Text, telefono : Nat64, correo : Text, direccion : Text, usuario : Text, contrasena : Text) : async () {
 		let register = { nombre=nombre; apellido=apellido; telefono=telefono; correo=correo; direccion=direccion; usuario=usuario; contrasena=contrasena};
 
+		emailMap.put(correo, register);
+    	userMap.put(usuario, register);
 		IDGenerate.put(Nat32.toText(generaID()), register);
 		
 		Debug.print("¡Usuario registrado correctamente! ID: " # Nat32.toText(ID));
@@ -80,5 +85,45 @@ actor ClientRegistry {
 			};
 		};
 	};
+
+	public query func loginUser(identifier: Text, contrasena: Text) : async Bool {
+    let emailUser: ?ClientInfo = emailMap.get(identifier);
+    let usernameUser: ?ClientInfo = userMap.get(identifier);
+    
+    switch (emailUser, usernameUser) {
+      case (null, null) {
+        Debug.print("Inicio de sesión fallido: Usuario no encontrado.");
+        return false;
+      };
+      case (?userInfo, _) {
+        if (userInfo.contrasena == contrasena) {
+          Debug.print("Inicio de sesión exitoso para el usuario: " # identifier);
+          return true;
+        } else {
+          Debug.print("Inicio de sesión fallido: Contraseña incorrecta.");
+          return false;
+        }
+      };
+      case (_, ?userInfo) {
+        if (userInfo.contrasena == contrasena) {
+          Debug.print("Inicio de sesión exitoso para el usuario: " # identifier);
+          return true;
+        } else {
+          Debug.print("Inicio de sesión fallido: Contraseña incorrecta.");
+          return false;
+        }
+      };
+    };
+  };
+  
+  public query func getUserInfoByEmail(correo: Text) : async ?ClientInfo {
+    let user: ?ClientInfo = emailMap.get(correo);
+    return user;
+  };
+
+  public query func getUserInfoByUsername(usuario: Text) : async ?ClientInfo {
+    let user: ?ClientInfo = userMap.get(usuario);
+    return user;
+  };
 
 };
