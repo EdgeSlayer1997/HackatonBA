@@ -11,7 +11,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'crearRegistro' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Nat64, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [],
+        [IDL.Bool],
         [],
       ),
     'deleteUser' : IDL.Func([IDL.Text], [IDL.Bool], []),

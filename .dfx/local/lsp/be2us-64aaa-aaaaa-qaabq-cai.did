@@ -9,16 +9,8 @@ type ClientInfo =
    usuario: text;
  };
 service : {
-  crearRegistro: (text, text, nat64, text, text, text, text) -> ();
-  deleteUser: (text) -> (bool);
-  getID: () -> (nat32) query;
-  getUser: (text) -> (opt ClientInfo) query;
   getUserInfoByEmail: (text) -> (opt ClientInfo) query;
   getUserInfoByUsername: (text) -> (opt ClientInfo) query;
-  getUsers: () -> (vec record {
-                         text;
-                         ClientInfo;
-                       }) query;
   loginUser: (text, text) -> (bool) query;
-  updateUser: (text, text, text, nat64, text, text, text, text) -> (bool);
+  registerUser: (text, text, nat64, text, text, text, text) -> ();
 }

@@ -14,7 +14,7 @@ export interface ClientInfo {
 export interface _SERVICE {
   'crearRegistro' : ActorMethod<
     [string, string, bigint, string, string, string, string],
-    undefined
+    boolean
   >,
   'deleteUser' : ActorMethod<[string], boolean>,
   'getID' : ActorMethod<[], number>,

@@ -34,16 +34,75 @@ actor ClientRegistry {
 		return ID;
 	};
 
-  public shared func crearRegistro(nombre : Text, apellido : Text, telefono : Nat64, correo : Text, direccion : Text, usuario : Text, contrasena : Text) : async () {
-		let register = { nombre=nombre; apellido=apellido; telefono=telefono; correo=correo; direccion=direccion; usuario=usuario; contrasena=contrasena};
+  public shared func crearRegistro(
+    nombre : Text,
+    apellido : Text,
+    telefono : Nat64,
+    correo : Text,
+    direccion : Text,
+    usuario : Text,
+    contrasena : Text,
+  ) : async Bool {
+    if (nombre.size() == 0 or apellido.size() == 0 or correo.size() == 0 or direccion.size() == 0 or usuario.size() == 0 or contrasena.size() == 0) {
+      Debug.print("Error: Todos los campos son obligatorios.");
+      return false;
+    };
 
-		emailMap.put(correo, register);
-    	userMap.put(usuario, register);
-		IDGenerate.put(Nat32.toText(generaID()), register);
-		
-		Debug.print("¡Usuario registrado correctamente! ID: " # Nat32.toText(ID));
-		return ();
-	};
+    if (nombre.size() < 3 or nombre.size() > 50) {
+      Debug.print("Error: El nombre debe contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (apellido.size() < 3 or apellido.size() > 50) {
+      Debug.print("Error: Los apellidos deben contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (telefono < 1000000000 or telefono > 9999999999) {
+      Debug.print("Error: El teléfono debe ser un número de 10 dígitos.");
+      return false;
+    };
+
+    if (
+      correo.size() < 13 or correo.size() > 100 or
+      not Text.contains(correo, #text "@") or
+      not Text.contains(correo, #text ".")
+    ) {
+      Debug.print("Error: El formato para el correo debe contener los simbolos '@' y '.' y tener entre 13 y 100 caracteres ");
+      return false;
+    };
+
+    if (direccion.size() < 10 or direccion.size() > 100) {
+      Debug.print("Error: La dirección debe contener entre 10 y 100 caracteres.");
+      return false;
+    };
+
+    if (usuario.size() < 3 or usuario.size() > 50) {
+      Debug.print("Error: El usuario debe contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (contrasena.size() < 3 or contrasena.size() > 30) {
+      Debug.print("Error: La contraseña debe contener entre 3 y 30 caracteres.");
+      return false;
+    };
+
+    let register = { 
+      nombre = nombre;
+      apellido = apellido;
+      telefono = telefono;
+      correo = correo;
+      direccion = direccion;
+      usuario = usuario;
+      contrasena = contrasena;
+    };
+
+    IDGenerate.put(Nat32.toText(generaID()), register);
+
+    Debug.print("¡Paciente registrado correctamente! ID: " # Nat32.toText(ID));
+    return true;
+  };
+
 
   public query func getUser (id: Text) : async ? ClientInfo {
 		let user: ?ClientInfo = IDGenerate.get(id);
@@ -56,21 +115,83 @@ actor ClientRegistry {
 		return userArray;
 	};
 
-  public shared func updateUser (id: Text, nombre : Text, apellido : Text, telefono : Nat64, correo : Text, direccion : Text, usuario : Text, contrasena : Text) : async Bool {
-		let user: ?ClientInfo = IDGenerate.get(id);
+  public shared func updateUser(
+  id: Text,
+  nombre : Text,
+  apellido : Text,
+  telefono : Nat64,
+  correo : Text,
+  direccion : Text,
+  usuario : Text,
+  contrasena : Text
+  ) : async Bool {
+  if (nombre.size() == 0 or apellido.size() == 0 or correo.size() == 0 or direccion.size() == 0 or usuario.size() == 0 or contrasena.size() == 0) {
+      Debug.print("Error: Todos los campos son obligatorios.");
+      return false;
+    };
 
-		switch (user) {
-			case (null) {
-				return false;
-			};
-			case (?currentUser) {
-				let newData: ClientInfo = {nombre : Text; apellido : Text; telefono : Nat64; correo : Text; direccion : Text; usuario : Text; contrasena : Text};
-				IDGenerate.put(id, newData);
-				Debug.print("Se actualizó el registro del usuario: " # id);
-				return true;
-			};
-		};
-	};
+    if (nombre.size() < 3 or nombre.size() > 50) {
+      Debug.print("Error: El nombre debe contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (apellido.size() < 3 or apellido.size() > 50) {
+      Debug.print("Error: Los apellidos deben contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (telefono < 1000000000 or telefono > 9999999999) {
+      Debug.print("Error: El teléfono debe ser un número de 10 dígitos.");
+      return false;
+    };
+
+    if (
+      correo.size() < 13 or correo.size() > 100 or
+      not Text.contains(correo, #text "@") or
+      not Text.contains(correo, #text ".")
+    ) {
+      Debug.print("Error: El formato para el correo debe contener los simbolos '@' y '.' y tener entre 13 y 100 caracteres ");
+      return false;
+    };
+
+    if (direccion.size() < 10 or direccion.size() > 100) {
+      Debug.print("Error: La dirección debe contener entre 10 y 100 caracteres.");
+      return false;
+    };
+
+    if (usuario.size() < 3 or usuario.size() > 50) {
+      Debug.print("Error: El usuario debe contener entre 3 y 50 caracteres.");
+      return false;
+    };
+
+    if (contrasena.size() < 3 or contrasena.size() > 30) {
+      Debug.print("Error: La contraseña debe contener entre 3 y 30 caracteres.");
+      return false;
+    };
+
+    let user: ?ClientInfo = IDGenerate.get(id);
+
+    switch (user) {
+    case (null) {
+	  Debug.print("El usuario con el ID: " # id # " no se ha encontrado");
+      return false;
+    };
+    case (?currentUser) {
+      let newData: ClientInfo = {
+        nombre = nombre; 
+        apellido = apellido;
+        telefono = telefono;
+        correo = correo;
+        direccion = direccion; 
+        usuario = usuario;
+        contrasena = contrasena 
+      };
+      IDGenerate.put(id, newData);
+      Debug.print("Se actualizó la información del usuario con el ID: " # id);
+      return true;
+    };
+  };
+};
 
   public func deleteUser (id: Text) : async Bool {
 		let user : ?ClientInfo = IDGenerate.get(id);

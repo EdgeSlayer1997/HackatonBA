@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from '../src/pages/Home';
 import Register from '../src/pages/Register';
 import Login from '../src/pages/Login';
+import Services from '../src/pages/Services';
+import Comments from '../src/pages/Comments';
+import History from '../src/pages/History';
 
 function App() {
   return (
@@ -19,12 +22,24 @@ function App() {
             <li>
               <Link to="/login">Login</Link>
             </li>
+            <li>
+            <Link to="/services">Servicios</Link>
+            </li>
+            <li>
+            <Link to="/comments">Comentarios</Link>
+            </li>
+            <li>
+            <Link to="/history">Historial</Link>
+            </li>
           </ul>
         </nav>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/comments" element={<Comments />} />
+          <Route path="/history" element={<History />} />
         </Routes>
       </div>
     </Router>
