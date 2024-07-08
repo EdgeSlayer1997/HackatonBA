@@ -34,74 +34,80 @@ actor ClientRegistry {
 		return ID;
 	};
 
-  public shared func crearRegistro(
-    nombre : Text,
-    apellido : Text,
-    telefono : Nat64,
-    correo : Text,
-    direccion : Text,
-    usuario : Text,
-    contrasena : Text,
-  ) : async Bool {
-    if (nombre.size() == 0 or apellido.size() == 0 or correo.size() == 0 or direccion.size() == 0 or usuario.size() == 0 or contrasena.size() == 0) {
-      Debug.print("Error: Todos los campos son obligatorios.");
-      return false;
-    };
-
-    if (nombre.size() < 3 or nombre.size() > 50) {
-      Debug.print("Error: El nombre debe contener entre 3 y 50 caracteres.");
-      return false;
-    };
-
-    if (apellido.size() < 3 or apellido.size() > 50) {
-      Debug.print("Error: Los apellidos deben contener entre 3 y 50 caracteres.");
-      return false;
-    };
-
-    if (telefono < 1000000000 or telefono > 9999999999) {
-      Debug.print("Error: El teléfono debe ser un número de 10 dígitos.");
-      return false;
-    };
-
-    if (
-      correo.size() < 13 or correo.size() > 100 or
-      not Text.contains(correo, #text "@") or
-      not Text.contains(correo, #text ".")
-    ) {
-      Debug.print("Error: El formato para el correo debe contener los simbolos '@' y '.' y tener entre 13 y 100 caracteres ");
-      return false;
-    };
-
-    if (direccion.size() < 10 or direccion.size() > 100) {
-      Debug.print("Error: La dirección debe contener entre 10 y 100 caracteres.");
-      return false;
-    };
-
-    if (usuario.size() < 3 or usuario.size() > 50) {
-      Debug.print("Error: El usuario debe contener entre 3 y 50 caracteres.");
-      return false;
-    };
-
-    if (contrasena.size() < 3 or contrasena.size() > 30) {
-      Debug.print("Error: La contraseña debe contener entre 3 y 30 caracteres.");
-      return false;
-    };
-
-    let register = { 
-      nombre = nombre;
-      apellido = apellido;
-      telefono = telefono;
-      correo = correo;
-      direccion = direccion;
-      usuario = usuario;
-      contrasena = contrasena;
-    };
-
-    IDGenerate.put(Nat32.toText(generaID()), register);
-
-    Debug.print("¡Paciente registrado correctamente! ID: " # Nat32.toText(ID));
-    return true;
+public shared func crearRegistro(
+  nombre : Text,
+  apellido : Text,
+  telefono : Nat64,
+  correo : Text,
+  direccion : Text,
+  usuario : Text,
+  contrasena : Text,
+) : async Bool {
+  if (nombre.size() == 0 or apellido.size() == 0 or correo.size() == 0 or direccion.size() == 0 or usuario.size() == 0 or contrasena.size() == 0) {
+    Debug.print("Error: Todos los campos son obligatorios.");
+    return false;
   };
+
+  if (nombre.size() < 3 or nombre.size() > 50) {
+    Debug.print("Error: El nombre debe contener entre 3 y 50 caracteres.");
+    return false;
+  };
+
+  if (apellido.size() < 3 or apellido.size() > 50) {
+    Debug.print("Error: Los apellidos deben contener entre 3 y 50 caracteres.");
+    return false;
+  };
+
+  if (telefono < 1000000000 or telefono > 9999999999) {
+    Debug.print("Error: El teléfono debe ser un número de 10 dígitos.");
+    return false;
+  };
+
+  if (
+    correo.size() < 13 or correo.size() > 100 or
+    not Text.contains(correo, #text "@") or
+    not Text.contains(correo, #text ".")
+  ) {
+    Debug.print("Error: El formato para el correo debe contener los simbolos '@' y '.' y tener entre 13 y 100 caracteres ");
+    return false;
+  };
+
+  if (direccion.size() < 10 or direccion.size() > 100) {
+    Debug.print("Error: La dirección debe contener entre 10 y 100 caracteres.");
+    return false;
+  };
+
+  if (usuario.size() < 3 or usuario.size() > 50) {
+    Debug.print("Error: El usuario debe contener entre 3 y 50 caracteres.");
+    return false;
+  };
+
+  if (contrasena.size() < 3 or contrasena.size() > 30) {
+    Debug.print("Error: La contraseña debe contener entre 3 y 30 caracteres.");
+    return false;
+  };
+
+  let register = { 
+    nombre = nombre;
+    apellido = apellido;
+    telefono = telefono;
+    correo = correo;
+    direccion = direccion;
+    usuario = usuario;
+    contrasena = contrasena;
+  };
+
+  let id = generaID();
+  IDGenerate.put(Nat32.toText(id), register);
+  
+  // Añadir al mapa de email y usuario
+  emailMap.put(correo, register);
+  userMap.put(usuario, register);
+
+  Debug.print("¡Usuario registrado correctamente! ID: " # Nat32.toText(id));
+  return true;
+};
+
 
 
   public query func getUser (id: Text) : async ? ClientInfo {
@@ -207,10 +213,10 @@ actor ClientRegistry {
 		};
 	};
 
-	public query func loginUser(identifier: Text, contrasena: Text) : async Bool {
+public query func loginUser(identifier: Text, contrasena: Text) : async Bool {
     let emailUser: ?ClientInfo = emailMap.get(identifier);
     let usernameUser: ?ClientInfo = userMap.get(identifier);
-    
+
     switch (emailUser, usernameUser) {
       case (null, null) {
         Debug.print("Inicio de sesión fallido: Usuario no encontrado.");
@@ -236,7 +242,7 @@ actor ClientRegistry {
       };
     };
   };
-  
+
   public query func getUserInfoByEmail(correo: Text) : async ?ClientInfo {
     let user: ?ClientInfo = emailMap.get(correo);
     return user;

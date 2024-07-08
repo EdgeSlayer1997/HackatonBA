@@ -104,7 +104,7 @@ function Services() {
           <option value="Aguascalientes">Aguascalientes</option>
           <option value="Asientos">Asientos</option>
           <option value="Calvillo">Calvillo</option>
-          <option value="Cosio">Cosío</option>
+          <option value="Cosío">Cosío</option>
           <option value="Jesús María">Jesús María</option>
           <option value="Pabellón de Arteaga">Pabellón de Arteaga</option>
           <option value="Rincón de Romos">Rincón de Romos</option>

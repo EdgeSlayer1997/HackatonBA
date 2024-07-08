@@ -4,6 +4,7 @@ import Nat32 "mo:base/Nat32";
 import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 
+
 actor ServiceRegistry {
 
   type Id = Nat32;
