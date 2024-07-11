@@ -1,81 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { register } from 'declarations/register';
+import { AuthClient } from '@dfinity/auth-client';
+import { HttpAgent, Actor } from '@dfinity/agent';
+import { idlFactory as registerIdlFactory } from 'declarations/register';
 
 const MySwal = withReactContent(Swal);
 
 function Login() {
-  const [form, setForm] = useState({
-    identifier: '',
-    contrasena: '',
-  });
   const [error, setError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [actor, setActor] = useState(null);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validaciones
-    if (!form.identifier || !form.contrasena) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Todos los campos son obligatorios',
-      });
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9]{5,15}$/.test(form.identifier)) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El usuario debe contener letras mayúsculas, minúsculas y números, y tener entre 5 y 15 caracteres',
-      });
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9]{8,20}$/.test(form.contrasena)) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'La contraseña debe contener letras mayúsculas, minúsculas y números, y tener entre 8 y 20 caracteres',
-      });
-      return;
-    }
-
-    try {
-      const success = await register.loginUser(form.identifier, form.contrasena);
-      if (success) {
-        MySwal.fire({
-          icon: 'success',
-          title: 'Inicio de sesión exitoso',
-          text: '¡Bienvenido!',
-        }).then(() => {
-          navigate('/');
-        });
+  useEffect(() => {
+    const initAuth = async () => {
+      const authClient = await AuthClient.create();
+      if (await authClient.isAuthenticated()) {
+        handleAuthenticated(authClient);
       } else {
-        setError('Inicio de sesión fallido');
+        await authClient.login({
+          identityProvider: 'https://identity.ic0.app/#authorize',
+          onSuccess: () => {
+            handleAuthenticated(authClient);
+          },
+        });
       }
-    } catch (error) {
-      setError('Error al iniciar sesión');
-    }
+    };
+
+    initAuth();
+  }, []);
+
+  const handleAuthenticated = async (authClient) => {
+    const identity = await authClient.getIdentity();
+    const agent = new HttpAgent({ identity });
+    const actor = Actor.createActor(registerIdlFactory, {
+      agent,
+      canisterId: process.env.CANISTER_ID_REGISTER,
+    });
+    setActor(actor);
+    setIsAuthenticated(true);
   };
+
+  const handleLogout = async () => {
+    const authClient = await AuthClient.create();
+    await authClient.logout();
+    setIsAuthenticated(false);
+    navigate('/'); // Redireccionar a la página principal después del logout
+  };
+
+  if (!isAuthenticated) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
       <h1>Inicio de Sesión</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input name="identifier" placeholder="Usuario o Correo" onChange={handleChange} required />
-        <input name="contrasena" type="password" placeholder="Contraseña" onChange={handleChange} required />
-        <button type="submit">Iniciar Sesión</button>
-      </form>
+      <button onClick={handleLogout}>Cerrar Sesión</button>
     </div>
   );
 }

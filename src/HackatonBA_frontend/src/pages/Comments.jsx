@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { register } from 'declarations/register';
+import AuthenticatedRoute from './AuthenticatedRoute';
 
 function Comments() {
   const [form, setForm] = useState({
@@ -77,6 +78,9 @@ function Comments() {
   };
 
   return (
+
+    <AuthenticatedRoute>
+
     <form onSubmit={handleSubmit}>
       <h1>Permitanos conocer su opinión completando el siguiente formulario y así poder mejorar el servicio.</h1>
 
@@ -151,6 +155,9 @@ function Comments() {
 
       <button type="submit">Registrar Comentario</button>
     </form>
+
+    </AuthenticatedRoute>
+
   );
 }
 

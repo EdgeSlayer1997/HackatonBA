@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { register } from 'declarations/register';
+import AuthenticatedRoute from './AuthenticatedRoute';
 
 function Services() {
   const [form, setForm] = useState({
@@ -127,6 +128,9 @@ function Services() {
   };
 
   return (
+
+    <AuthenticatedRoute>
+
     <div>
       <h1>Registro de Servicios</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -171,6 +175,9 @@ function Services() {
         <button type="submit">Registrar Servicio</button>
       </form>
     </div>
+
+    </AuthenticatedRoute>
+
   );
 }
 
