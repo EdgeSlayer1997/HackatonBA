@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { register } from 'declarations/register';
+
+const MySwal = withReactContent(Swal);
 
 function Login() {
   const [form, setForm] = useState({
@@ -16,10 +20,45 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validaciones
+    if (!form.identifier || !form.contrasena) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Todos los campos son obligatorios',
+      });
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9]{5,15}$/.test(form.identifier)) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El usuario debe contener letras mayúsculas, minúsculas y números, y tener entre 5 y 15 caracteres',
+      });
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9]{8,20}$/.test(form.contrasena)) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'La contraseña debe contener letras mayúsculas, minúsculas y números, y tener entre 8 y 20 caracteres',
+      });
+      return;
+    }
+
     try {
       const success = await register.loginUser(form.identifier, form.contrasena);
       if (success) {
-        navigate('/');
+        MySwal.fire({
+          icon: 'success',
+          title: 'Inicio de sesión exitoso',
+          text: '¡Bienvenido!',
+        }).then(() => {
+          navigate('/');
+        });
       } else {
         setError('Inicio de sesión fallido');
       }

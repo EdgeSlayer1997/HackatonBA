@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { services } from 'declarations/services';
+import { register } from 'declarations/register';
 
 function History() {
   const [servicesList, setServicesList] = useState([]);
@@ -52,7 +52,7 @@ function History() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const fetchedServices = await services.getServices();
+        const fetchedServices = await register.getServices();
         console.log('Fetched services:', fetchedServices);
         setServicesList(fetchedServices);
       } catch (error) {

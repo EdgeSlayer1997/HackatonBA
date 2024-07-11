@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { services } from 'declarations/services';
+import { register } from 'declarations/register';
 
 function Services() {
   const [form, setForm] = useState({
@@ -12,7 +13,7 @@ function Services() {
     municipio: 'Aguascalientes',
     capacidadPipa: '5000',
   });
-  const [errors, setErrors] = useState({});  // Definimos el estado de errores
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -20,38 +21,11 @@ function Services() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const validate = () => {
-    const newErrors = {};
-
-    if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,50}$/.test(form.nombreReceptor)) {
-      newErrors.nombreReceptor = 'Debe contener entre 3 y 50 caracteres, solo letras y espacios';
-    }
-
-    if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,50}$/.test(form.calle)) {
-      newErrors.calle = 'Debe contener entre 3 y 50 caracteres, solo letras y espacios';
-    }
-
-    if (!/^\d{1,4}$/.test(form.numero)) {
-      newErrors.numero = 'Debe contener entre 1 y 4 números';
-    }
-
-    if (!/^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,50}$/.test(form.colonia)) {
-      newErrors.colonia = 'Debe contener entre 3 y 50 caracteres, solo letras y espacios';
-    }
-
-    if (!/^\d{4,5}$/.test(form.codigoPostal)) {
-      newErrors.codigoPostal = 'Debe contener entre 4 y 5 números';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;  // Retornamos true solo si no hay errores
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
+    if (validateForm() && validateNotEmpty()) {
       try {
-        await services.crearRegistro(
+        await register.crearServicio(
           form.nombreReceptor,
           form.calle,
           BigInt(form.numero),
@@ -60,13 +34,96 @@ function Services() {
           form.municipio,
           BigInt(form.capacidadPipa)
         );
-        alert('¡Servicio registrado correctamente!');
-        navigate('/services');
+        showSuccessAlert();
       } catch (error) {
         setError('Error al registrar el servicio');
-        console.log(error);
       }
     }
+  };
+
+  const validateForm = () => {
+    // Validaciones individuales
+    if (!validateNombreReceptor(form.nombreReceptor)) return false;
+    if (!validateCalle(form.calle)) return false;
+    if (!validateNumero(form.numero)) return false;
+    if (!validateColonia(form.colonia)) return false;
+    if (!validateCodigoPostal(form.codigoPostal)) return false;
+    return true;
+  };
+
+  const validateNotEmpty = () => {
+    // Validación de campos no vacíos
+    for (const key in form) {
+      if (!form[key]) {
+        showErrorAlert('Campo vacío', `El campo ${key} no puede estar vacío.`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const validateNombreReceptor = (nombreReceptor) => {
+    const regex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,50}$/;
+    if (!regex.test(nombreReceptor)) {
+      showErrorAlert('Nombre del receptor incorrecto', 'Debe contener entre 3 y 50 caracteres, solo letras y espacios.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateCalle = (calle) => {
+    const regex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,50}$/;
+    if (!regex.test(calle)) {
+      showErrorAlert('Calle incorrecta', 'Debe contener entre 3 y 50 caracteres, solo letras y espacios.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateNumero = (numero) => {
+    const regex = /^\d{2,4}$/;
+    if (!regex.test(numero)) {
+      showErrorAlert('Número incorrecto', 'Debe contener entre 2 y 4 números.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateColonia = (colonia) => {
+    const regex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1 ]{3,30}$/;
+    if (!regex.test(colonia)) {
+      showErrorAlert('Colonia incorrecta', 'Debe contener entre 3 y 30 caracteres, solo letras y espacios.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateCodigoPostal = (codigoPostal) => {
+    const regex = /^\d{4,6}$/;
+    if (!regex.test(codigoPostal)) {
+      showErrorAlert('Código postal incorrecto', 'Debe contener entre 4 y 6 números.');
+      return false;
+    }
+    return true;
+  };
+
+  const showErrorAlert = (title, text) => {
+    Swal.fire({
+      icon: 'error',
+      title,
+      text,
+    });
+  };
+
+  const showSuccessAlert = () => {
+    Swal.fire({
+      icon: 'success',
+      title: '¡Servicio registrado!',
+      text: 'El servicio ha sido registrado correctamente.',
+      confirmButtonText: 'OK',
+    }).then(() => {
+      navigate('/history');
+    });
   };
 
   return (
@@ -75,30 +132,20 @@ function Services() {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <label htmlFor="nombreReceptor">Nombre del Receptor:</label><br />
-        <input type="text" id="nombreReceptor" name="nombreReceptor" value={form.nombreReceptor} onChange={handleChange} />
-        {errors.nombreReceptor && <p>{errors.nombreReceptor}</p>}
+        <input type="text" id="nombreReceptor" name="nombreReceptor" value={form.nombreReceptor} onChange={handleChange} required />
         <br />
-
         <label htmlFor="calle">Calle:</label><br />
-        <input type="text" id="calle" name="calle" value={form.calle} onChange={handleChange} />
-        {errors.calle && <p>{errors.calle}</p>}
+        <input type="text" id="calle" name="calle" value={form.calle} onChange={handleChange} required />
         <br />
-
         <label htmlFor="numero">Número:</label><br />
-        <input type="number" id="numero" name="numero" value={form.numero} onChange={handleChange} />
-        {errors.numero && <p>{errors.numero}</p>}
+        <input type="number" id="numero" name="numero" value={form.numero} onChange={handleChange} required />
         <br />
-
         <label htmlFor="colonia">Colonia:</label><br />
-        <input type="text" id="colonia" name="colonia" value={form.colonia} onChange={handleChange} />
-        {errors.colonia && <p>{errors.colonia}</p>}
+        <input type="text" id="colonia" name="colonia" value={form.colonia} onChange={handleChange} required />
         <br />
-
         <label htmlFor="codigoPostal">Código Postal:</label><br />
-        <input type="number" id="codigoPostal" name="codigoPostal" value={form.codigoPostal} onChange={handleChange} />
-        {errors.codigoPostal && <p>{errors.codigoPostal}</p>}
+        <input type="number" id="codigoPostal" name="codigoPostal" value={form.codigoPostal} onChange={handleChange} required />
         <br />
-
         <label htmlFor="municipio">Municipio:</label><br />
         <select name="municipio" id="municipio" value={form.municipio} onChange={handleChange}>
           <option value="Aguascalientes">Aguascalientes</option>
@@ -114,7 +161,6 @@ function Services() {
           <option value="El Llano">El Llano</option>
         </select>
         <br />
-
         <label htmlFor="capacidadPipa">Capacidad de la Pipa:</label><br />
         <select name="capacidadPipa" id="capacidadPipa" value={form.capacidadPipa} onChange={handleChange}>
           <option value="5000">5000 litros</option>
@@ -122,7 +168,6 @@ function Services() {
           <option value="20000">20,000 litros</option>
         </select>
         <br />
-
         <button type="submit">Registrar Servicio</button>
       </form>
     </div>

@@ -1,3 +1,27 @@
+type ServiceInfo = 
+ record {
+   calle: text;
+   capacidadPipa: nat32;
+   codigoPostal: nat32;
+   colonia: text;
+   municipio: text;
+   noPedido: IdService;
+   nombreReceptor: text;
+   numero: nat32;
+ };
+type IdService = nat32;
+type IdComment = nat32;
+type CommentInfo = 
+ record {
+   idComment: IdComment;
+   pregunta1: nat32;
+   pregunta2: nat32;
+   pregunta3: nat32;
+   pregunta4: nat32;
+   pregunta5: nat32;
+   pregunta6: nat32;
+   pregunta7: text;
+ };
 type ClientInfo = 
  record {
    apellido: text;
@@ -5,13 +29,30 @@ type ClientInfo =
    correo: text;
    direccion: text;
    nombre: text;
+   rol: text;
    telefono: nat64;
    usuario: text;
  };
 service : {
+  crearComentario: (nat32, nat32, nat32, nat32, nat32, nat32, text) -> (bool);
   crearRegistro: (text, text, nat64, text, text, text, text) -> (bool);
+  crearServicio: (text, text, nat32, text, nat32, text, nat32) -> (bool);
+  deleteComment: (text) -> (bool);
+  deleteService: (text) -> (bool);
   deleteUser: (text) -> (bool);
+  getComment: (text) -> (opt CommentInfo) query;
+  getComments: () -> (vec record {
+                            text;
+                            CommentInfo;
+                          }) query;
   getID: () -> (nat32) query;
+  getIDComment: () -> (nat32) query;
+  getIDService: () -> (nat32) query;
+  getService: (text) -> (opt ServiceInfo) query;
+  getServices: () -> (vec record {
+                            text;
+                            ServiceInfo;
+                          }) query;
   getUser: (text) -> (opt ClientInfo) query;
   getUserInfoByEmail: (text) -> (opt ClientInfo) query;
   getUserInfoByUsername: (text) -> (opt ClientInfo) query;
@@ -20,5 +61,9 @@ service : {
                          ClientInfo;
                        }) query;
   loginUser: (text, text) -> (bool) query;
+  updateComment: (text, nat32, nat32, nat32, nat32, nat32, nat32, text) ->
+   (bool);
+  updateService: (text, text, text, nat32, text, nat32, text, nat32) ->
+   (bool);
   updateUser: (text, text, text, nat64, text, text, text, text) -> (bool);
 }

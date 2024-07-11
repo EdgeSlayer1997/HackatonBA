@@ -1,5 +1,5 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import Home from '../src/pages/Home';
 import Register from '../src/pages/Register';
 import Login from '../src/pages/Login';
@@ -8,6 +8,7 @@ import Comments from '../src/pages/Comments';
 import History from '../src/pages/History';
 
 function App() {
+
   return (
     <Router>
       <div>

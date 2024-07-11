@@ -1,27 +1,12 @@
 {
   "canisters": {
-    "login": {
-      "main": "src/HackatonBA_backend/login.mo",
-      "type": "motoko"
-    },
     "register": {
       "main": "src/HackatonBA_backend/register.mo",
       "type": "motoko"
     },
-    "services": {
-      "main": "src/HackatonBA_backend/services.mo",
-      "type": "motoko"
-    },
-    "comments": {
-      "main": "src/HackatonBA_backend/comments.mo",
-      "type": "motoko"
-    },
     "HackatonBA_frontend": {
       "dependencies": [
-        "login",
-        "register",
-        "services",
-        "comments"
+        "register"
       ],
       "source": [
         "src/HackatonBA_frontend/dist"
